@@ -6,18 +6,18 @@ import asyncpg
 
 DATABASE_CONFIGS = {
     'alisher': {
-        'host': '89.111.155.229',
-        'database': 'turbo_cash',
-        'user': 'postgres',
-        'password': 'fADg41A%',
-        'port': '5432'
+        'host': '',
+        'database': '',
+        'user': '',
+        'password': '',
+        'port': ''
     },
     'kirill': {
-        'host': '89.111.155.229',
-        'database': 'turbocash',
-        'user': 'postgres',
-        'password': 'fADg41A%',
-        'port': '5432'
+        'host': '',
+        'database': '',
+        'user': '',
+        'password': '',
+        'port': ''
     }
 }
 
@@ -58,7 +58,7 @@ class UserState(StatesGroup):
 
 
 storage = MemoryStorage()
-bot = Bot(token='7115284873:AAGfTaSt9j675EeaabbWtLuIiTBfMYwCmMY')
+bot = Bot(token='')
 dp = Dispatcher(bot, storage=storage)
 
-ADMIN_ID = 2130978450 #310526054 добавить как СА
+ADMIN_ID =  # добавить как СА
