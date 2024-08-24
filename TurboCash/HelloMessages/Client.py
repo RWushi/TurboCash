@@ -8,7 +8,7 @@ async def full_name(chat_id):
         "⚠️ **Внимание**: к Вашему ФИО, имени в телеграме и компьютеру будет привязана лицензия на программу!"
     )
     await UserState.full_name.set()
-    await bot.send_message(chat_id, text, parse_mode="Markdown")
+    await bot.send_message(chat_id, text, parse_mode="Markdown", reply_markup=None)
 
 
 async def rates_new(chat_id):
@@ -54,7 +54,7 @@ async def thank_you(chat_id, term, month_word, workplace, keys):
             f"*Лицензионные ключи:*\n{keys_str}\n\n"
             "*Поддержка:* @rabat057\n"
             "*Канал для замечаний и предложений:* https://t\\.me/\\+81XAkkxZhPIyOWU6\n"
-            "*Ссылка на скачивание файла:* https://drive\\.google\\.com/file/d/1ihtaGgwBxvZNPc6kye7P5lrMqaIJyqcs/view?usp\\=sharing")
+            "*Ссылка для скачивания файла:* https://drive\\.google\\.com/file/d/1ihtaGgwBxvZNPc6kye7P5lrMqaIJyqcs/view?usp\\=sharing")
     await bot.send_message(chat_id, text, parse_mode="MarkdownV2")
 
 

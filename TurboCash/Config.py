@@ -6,17 +6,17 @@ import asyncpg
 
 DATABASE_CONFIGS = {
     'alisher': {
-        'host': '',
-        'database': '',
-        'user': '',
-        'password': '',
+        'host': '89.111.155.229',
+        'database': 'turbo_cash',
+        'user': 'postgres',
+        'password': 'fADg41A%',
         'port': '5432'
     },
     'kirill': {
-        'host': '',
-        'database': '',
-        'user': '',
-        'password': '',
+        'host': '89.111.155.229',
+        'database': 'turbocash',
+        'user': 'postgres',
+        'password': 'fADg41A%',
         'port': '5432'
     }
 }
@@ -45,6 +45,7 @@ class UserState(StatesGroup):
     rates = State()
     confirmation = State()
     menu = State()
+    menu.admin = State()
     black_list = State()
     add_black_list = State()
     delete_black_list = State()
@@ -57,7 +58,7 @@ class UserState(StatesGroup):
 
 
 storage = MemoryStorage()
-bot = Bot(token='')
+bot = Bot(token='7115284873:AAGfTaSt9j675EeaabbWtLuIiTBfMYwCmMY')
 dp = Dispatcher(bot, storage=storage)
 
-ADMIN_ID=
+ADMIN_ID = 2130978450 #310526054 добавить как СА

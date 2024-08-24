@@ -14,5 +14,5 @@ payment_kb = InlineKeyboardMarkup(row_width=1).add(
 )
 
 support_kb = InlineKeyboardMarkup().add(
-    InlineKeyboardButton(text="📞 Поддержка", url="https://t.me/TomSandr")
+    InlineKeyboardButton(text="📞 Поддержка", url="https://t.me/rabat057")
 )

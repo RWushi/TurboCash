@@ -1,6 +1,7 @@
 from aiogram.types import Message
 from Config import dp, UserState, DB
 from HelloMessages.SuperAdmin import admin, black_list as bl
+from HelloMessages.Admin import menu
 
 
 async def check_id(user_id):
@@ -124,7 +125,11 @@ async def add_black_list_handler(message: Message):
             await message.answer(f"Пользователя с ID {client_id} не существует в базе данных")
 
     elif message.text == "↩️ Вернуться назад":
-        await bl(chat_id)
+        role = await check_role(chat_id)
+        if role == 'admin':
+            await menu(chat_id)
+        elif role == 'superadmin':
+            await bl(chat_id)
 
     else:
         await message.answer("Введите числовой ID")
@@ -148,7 +153,11 @@ async def delete_black_list_handler(message: Message):
             await message.answer(f"Пользователя с ID {client_id} не существует в базе данных")
 
     elif message.text == "↩️ Вернуться назад":
-        await bl(chat_id)
+        role = await check_role(chat_id)
+        if role == 'admin':
+            await menu(chat_id)
+        elif role == 'superadmin':
+            await bl(chat_id)
 
     else:
         await message.answer("Введите числовой ID")

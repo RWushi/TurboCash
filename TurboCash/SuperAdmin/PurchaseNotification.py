@@ -4,9 +4,11 @@ from aiogram.types import CallbackQuery
 from HelloMessages.Client import thank_you
 from Client.HelpFunctions import save_order
 from LicenseKey import workplaces_keys
+from aiogram.utils.exceptions import ChatNotFound
 
 
 messages_ids = {}
+messages_ids2 = {}
 order_info = {}
 conf_info = {}
 
@@ -33,19 +35,22 @@ async def purchase_notification(user_id, term, month_word, workplace, price):
             f"*Количество рабочих мест:* {workplace}\n"
             f"*Сумма:* {price}\n\n")
 
-    if contact:
-        text += f"Связаться с ним можно по {contact}"
-        conf_info[user_id] = (full_name, contact)
-    else:
+    if contact == '-':
         text += "У этого человека нет юзернейма"
         conf_info[user_id] = (full_name, None)
+    else:
+        text += f"Связаться с ним можно по {contact}"
+        conf_info[user_id] = (full_name, contact)
 
     admin_ids = await get_admins()
 
     for admin_id in admin_ids:
-        message = await bot.send_message(admin_id, text, 'Markdown', reply_markup=kb)
-        message_id = message.message_id
-        messages_ids[admin_id] = message_id
+        try:
+            message = await bot.send_message(admin_id, text, 'Markdown', reply_markup=kb)
+            message_id = message.message_id
+            messages_ids[admin_id] = message_id
+        except ChatNotFound:
+            continue
     order_info[user_id] = (term, month_word, workplace, price)
 
 
@@ -65,40 +70,63 @@ async def handle_conf_payment(admin_id, user_id, term, month_word, workplace, pr
     await thank_you(user_id, term, month_word, workplace, keys)
     full_name, contact = await get_user_info(user_id)
 
-    text = ("Оплата подтверждена\n"
-            f"Цена: {price} рублей\n"
-            f"ФИО: {full_name}\n")
-    if contact:
-        text += f"Юзернейм: {contact}"
-    else:
-        text += "У этого пользователя нет юзернейма"
+    header = "Оплата подтверждена"
 
-    await bot.send_message(admin_id, text, parse_mode='Markdown')
+    add_header = " другим администратором"
+    body = (f"\n*Цена:* {price} рублей\n"
+            f"*ФИО:* {full_name}\n")
+
+    if contact == '-':
+        body += "У этого пользователя нет юзернейма"
+    else:
+        body += f"*Юзернейм:* {contact}"
+
+    text1 = header + body
+    text2 = header + add_header + body
+
     for admin_chat, message_id in messages_ids.items():
         await bot.edit_message_reply_markup(admin_chat, message_id, reply_markup=None)
+        if admin_chat == admin_id:
+            await bot.send_message(admin_id, text1, 'Markdown')
+        else:
+            await bot.send_message(admin_chat, text2, 'Markdown')
 
 
-async def handle_no_conf_payment(admin_id):
+async def handle_no_conf_payment(admin_id, user_id):
     await bot.send_message(admin_id, "Оплата отклонена")
+    await bot.send_message(user_id, "Ваша оплата была отклонена администратором")
     for admin_chat, message_id in messages_ids.items():
         await bot.edit_message_reply_markup(admin_chat, message_id, reply_markup=None)
 
 
 @dp.callback_query_handler(lambda call: True, state=UserState.payment_conf)
 async def second_conf_handler(call: CallbackQuery, state):
+    try:
+        prev_choice = call.data.split(':')[2]
+    except IndexError:
+        await call.answer("Вам нужно действовать по порядку.\n"
+                          "Сначала подтвердите/отклоните заявку человека, на которую уже нажали", show_alert=True)
+        return
+
     admin_id, user_id, choice, term, month_word, price, workplace = await get_common_data(call)
-    prev_choice = call.data.split(':')[2]
+
+    message_id = call.message.message_id
 
     if choice == "conf":
         if prev_choice == "yes":
             keys = await workplaces_keys(workplace)
             await handle_conf_payment(admin_id, user_id, term, month_word, workplace, price, keys)
 
-        if prev_choice == "no":
-            await handle_no_conf_payment(admin_id)
+        elif prev_choice == "no":
+            await handle_no_conf_payment(admin_id, user_id)
+
+        for admin_id, message_id in messages_ids2.items():
+            await bot.delete_message(admin_id, message_id)
+
+    else:
+        await bot.delete_message(admin_id, message_id)
 
     await state.finish()
-    await bot.delete_message(admin_id, call.message.message_id)
 
 
 @dp.callback_query_handler(lambda call: call.data.endswith('payment'), state="*")
@@ -115,11 +143,14 @@ async def confirmation_handler(call: CallbackQuery):
     text = (f"Вы уверены, что хотите {action} оплату пользователя?\n\n"
             f"Цена: {price} рублей\n"
             f"ФИО: {full_name}\n")
-    if contact:
-        text += f"Юзернейм: {contact}"
-    else:
-        text += "У этого пользователя нет юзернейма"
 
-    await (bot.send_message
-           (admin_id, text, reply_markup=await conf_payment_kb2(user_id, choice_key)))
+    if contact == '-':
+        text += "У этого пользователя нет юзернейма"
+    else:
+        text += f"Юзернейм: {contact}"
+
+    message = await (bot.send_message(admin_id, text,
+                     reply_markup=await conf_payment_kb2(user_id, choice_key)))
+    message_id = message.message_id
+    messages_ids2[admin_id] = message_id
     await UserState.payment_conf.set()

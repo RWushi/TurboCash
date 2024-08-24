@@ -28,3 +28,5 @@ async def confirmation_handler(call: CallbackQuery, state: FSMContext):
         else:
             await rates_new(chat_id)
 
+    await bot.edit_message_reply_markup(chat_id, call.message.message_id, reply_markup=None)
+

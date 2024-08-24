@@ -1,6 +1,6 @@
 from aiogram.types import CallbackQuery
 from aiogram.dispatcher import FSMContext
-from Config import dp, UserState
+from Config import bot, dp, UserState
 from HelloMessages.Client import workplace
 
 
@@ -36,5 +36,6 @@ async def rates_handler(call: CallbackQuery, state: FSMContext):
         await state.update_data(month_word=month_word, term=term, price=price)
         await workplace(chat_id)
 
+    await bot.edit_message_reply_markup(chat_id, call.message.message_id, reply_markup=None)
 
 import Client.Workplace

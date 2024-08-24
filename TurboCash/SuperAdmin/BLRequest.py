@@ -3,6 +3,7 @@ from aiogram.types import CallbackQuery
 from Keyboards.SuperAdmin import confirmation_kb
 from HelloMessages.Client import agreement, disagreement
 from SuperAdmin.Add_Delete import delete_black_list
+from aiogram.utils.exceptions import ChatNotFound
 
 
 messages_ids = {}
@@ -21,9 +22,12 @@ async def delete_request(user_id, client_id, cause):
     admin_ids = await get_admins()
 
     for admin_id in admin_ids:
-        message = await bot.send_message(admin_id, text, reply_markup=kb)
-        message_id = message.message_id
-        messages_ids[admin_id] = (user_id, client_id, message_id)
+        try:
+            message = await bot.send_message(admin_id, text, reply_markup=kb)
+            message_id = message.message_id
+            messages_ids[admin_id] = (user_id, client_id, message_id)
+        except ChatNotFound:
+            continue
 
 
 @dp.callback_query_handler(lambda call: call.data.endswith('conf'), state="*")

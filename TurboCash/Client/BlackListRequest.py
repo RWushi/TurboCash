@@ -32,5 +32,5 @@ async def delete_cause_bl_handler(message: Message, state: FSMContext):
     cause = message.text
     data = await state.get_data()
     client_id = data['client_id']
-    await delete_request(user_id, client_id, cause, state)
+    await delete_request(user_id, client_id, cause)
     await message.answer(f"Заявка на удаление пользователя с ID {client_id} в черный список отправлена администратору")
